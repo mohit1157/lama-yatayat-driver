@@ -85,7 +85,14 @@ async function request<T>(
     return undefined as unknown as T;
   }
 
-  return res.json() as Promise<T>;
+  const json = await res.json();
+
+  // Unwrap backend envelope: { success: true, data: T }
+  if (json && typeof json === "object" && "success" in json && "data" in json) {
+    return json.data as T;
+  }
+
+  return json as T;
 }
 
 export function get<T>(path: string, options?: RequestOptions) {
