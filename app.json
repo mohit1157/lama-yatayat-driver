@@ -16,11 +16,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.lamayatayat.driver",
       "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
         "NSLocationWhenInUseUsageDescription": "LaMa Driver needs your location to show your position on the map and send location updates to riders.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "LaMa Driver needs your location to provide navigation and send location updates while on a trip."
-      },
-      "config": {
-        "googleMapsApiKey": "YOUR_GOOGLE_MAPS_API_KEY"
       }
     },
     "android": {
