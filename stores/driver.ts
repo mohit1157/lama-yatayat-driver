@@ -49,8 +49,9 @@ export const useDriverStore = create<DriverState>((set, getState) => ({
       wsManager.connect({ user_id: driverId, role: "driver" });
 
       set({ isOnline: true, isLoading: false });
-    } catch {
+    } catch (err) {
       set({ isLoading: false });
+      throw err; // Re-throw so the UI can show an alert
     }
   },
 
@@ -62,8 +63,9 @@ export const useDriverStore = create<DriverState>((set, getState) => ({
       wsManager.disconnect();
 
       set({ isOnline: false, destination: null, isLoading: false });
-    } catch {
+    } catch (err) {
       set({ isLoading: false });
+      throw err; // Re-throw so the UI can show an alert
     }
   },
 

@@ -4,7 +4,7 @@
  * Shows map with multi-stop waypoints and pickup/dropoff confirmation.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -44,10 +44,33 @@ export default function ActiveTripScreen() {
   } = useDriverStore();
   const { currentLocation, fetchCurrentLocation } = useLocationStore();
   const [isConfirming, setIsConfirming] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  const mapRef = useRef<any>(null);
 
   useEffect(() => {
     fetchCurrentLocation();
   }, []);
+
+  // Delay MapView rendering to avoid blank map on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setMapReady(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Animate map to current location when it changes
+  useEffect(() => {
+    if (currentLocation && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        },
+        500
+      );
+    }
+  }, [currentLocation]);
 
   // If no current batch, go back
   useEffect(() => {
@@ -129,11 +152,13 @@ export default function ActiveTripScreen() {
     <View style={styles.container}>
       {/* Map with waypoint markers */}
       <View style={styles.mapContainer}>
-        {MapView ? (
+        {MapView && mapReady ? (
           <MapView
+            ref={mapRef}
             style={StyleSheet.absoluteFillObject}
             initialRegion={region}
             showsUserLocation
+            showsMyLocationButton={true}
           >
             {displayWaypoints.map((wp) => {
               const key = `${wp.type}_${wp.ride_id}`;

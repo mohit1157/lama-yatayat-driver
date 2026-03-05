@@ -57,6 +57,7 @@ export default function DriverHomeScreen() {
     useLocationStore();
 
   const [destinationInput, setDestinationInput] = useState("");
+  const [mapReady, setMapReady] = useState(false);
   const mapRef = useRef<any>(null);
 
   // Request location on mount
@@ -66,6 +67,27 @@ export default function DriverHomeScreen() {
       await fetchCurrentLocation();
     })();
   }, []);
+
+  // Delay MapView rendering to avoid blank map on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setMapReady(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Animate map to current location when it changes
+  useEffect(() => {
+    if (currentLocation && mapRef.current) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        },
+        500
+      );
+    }
+  }, [currentLocation]);
 
   // Register push notifications
   useEffect(() => {
@@ -95,19 +117,23 @@ export default function DriverHomeScreen() {
 
   const handleToggle = async () => {
     if (!user) return;
-
-    if (isOnline) {
-      await goOffline(user.id);
-    } else {
-      const granted = await requestPermission();
-      if (!granted) {
-        Alert.alert(
-          "Location Required",
-          "Please enable location services to go online."
-        );
-        return;
+    try {
+      if (isOnline) {
+        await goOffline(user.id);
+      } else {
+        const granted = await requestPermission();
+        if (!granted) {
+          Alert.alert(
+            "Location Required",
+            "Please enable location services to go online."
+          );
+          return;
+        }
+        await goOnline(user.id);
       }
-      await goOnline(user.id);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update status";
+      Alert.alert("Error", message);
     }
   };
 
@@ -133,13 +159,13 @@ export default function DriverHomeScreen() {
   return (
     <View style={styles.container}>
       {/* Map */}
-      {MapView ? (
+      {MapView && mapReady ? (
         <MapView
           ref={mapRef}
           style={StyleSheet.absoluteFillObject}
           initialRegion={region}
           showsUserLocation
-          showsMyLocationButton={false}
+          showsMyLocationButton={true}
         />
       ) : (
         <View style={[StyleSheet.absoluteFillObject, styles.mapPlaceholder]}>
