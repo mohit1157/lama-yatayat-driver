@@ -35,7 +35,7 @@ async function request<T>(
   body?: unknown,
   options: RequestOptions = {}
 ): Promise<T> {
-  const token = options.token ?? (await getStoredToken());
+  const token = options.token !== undefined ? options.token : (await getStoredToken());
 
   let url = `${API_URL}${path}`;
   if (options.params) {

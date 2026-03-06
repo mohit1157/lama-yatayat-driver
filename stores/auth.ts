@@ -43,12 +43,18 @@ export const useAuthStore = create<AuthState>((set, getState) => ({
       const body: LoginInput = { email, password };
       const data = await post<AuthResponse>("/api/v1/auth/login", body, { token: null });
 
-      await setStoredToken(data.access_token);
-      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(data.user));
+      const token = data?.access_token;
+      const user = data?.user;
+      if (!token || typeof token !== "string") {
+        throw new Error("Invalid login response: missing access token");
+      }
+
+      await setStoredToken(token);
+      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user ?? {}));
 
       set({
-        user: data.user,
-        accessToken: data.access_token,
+        user: user ?? null,
+        accessToken: token,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -65,12 +71,18 @@ export const useAuthStore = create<AuthState>((set, getState) => ({
       const body: RegisterInput = { name, email, phone, password, role: "driver" };
       const data = await post<AuthResponse>("/api/v1/auth/register", body, { token: null });
 
-      await setStoredToken(data.access_token);
-      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(data.user));
+      const token = data?.access_token;
+      const user = data?.user;
+      if (!token || typeof token !== "string") {
+        throw new Error("Invalid register response: missing access token");
+      }
+
+      await setStoredToken(token);
+      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(user ?? {}));
 
       set({
-        user: data.user,
-        accessToken: data.access_token,
+        user: user ?? null,
+        accessToken: token,
         isAuthenticated: true,
         isLoading: false,
       });
