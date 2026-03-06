@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -147,19 +148,21 @@ export default function DriverHomeScreen() {
     await declineBatch(pendingBatch.id);
   };
 
-  const region = currentLocation
+  // Only build map region from real GPS — never default to Kathmandu
+  const hasLocation = !!currentLocation;
+  const region = hasLocation
     ? {
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
+        latitude: currentLocation!.coords.latitude,
+        longitude: currentLocation!.coords.longitude,
         latitudeDelta: 0.02,
         longitudeDelta: 0.02,
       }
-    : DEFAULT_REGION;
+    : null;
 
   return (
     <View style={styles.container}>
-      {/* Map */}
-      {MapView && mapReady ? (
+      {/* Map — only render once we have real GPS location */}
+      {MapView && mapReady && region ? (
         <MapView
           ref={mapRef}
           style={StyleSheet.absoluteFillObject}
@@ -169,8 +172,8 @@ export default function DriverHomeScreen() {
         />
       ) : (
         <View style={[StyleSheet.absoluteFillObject, styles.mapPlaceholder]}>
-          <Ionicons name="map" size={64} color={Colors.grayLight} />
-          <Text style={styles.mapPlaceholderText}>Map</Text>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.mapPlaceholderText}>Getting your location...</Text>
         </View>
       )}
 
