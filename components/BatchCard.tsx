@@ -44,14 +44,14 @@ export default function BatchCard({
             <View style={styles.riderInfo}>
               <Text style={styles.riderName}>{ride.rider.name}</Text>
               <Text style={styles.riderRoute} numberOfLines={1}>
-                {ride.pickup_location.address}
+                {ride.pickup_addr || "Pickup"}
               </Text>
               <Text style={styles.riderDest} numberOfLines={1}>
-                {ride.dropoff_location.address}
+                {ride.dropoff_addr || "Dropoff"}
               </Text>
             </View>
             <Text style={styles.fare}>
-              ${ride.fare.toFixed(2)}
+              ${ride.fare_amount?.toFixed(2) ?? "--"}
             </Text>
           </View>
         ))}

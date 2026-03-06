@@ -86,12 +86,14 @@ export interface DriverLocationUpdate {
 
 export type RideStatus =
   | "requested"
+  | "matching"
   | "matched"
   | "driver_en_route"
-  | "driver_arrived"
+  | "pickup_arrived"
   | "in_progress"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "disputed";
 
 export interface Rider {
   id: string;
@@ -105,18 +107,14 @@ export interface RideInBatch {
   id: string;
   rider: Rider;
   status: RideStatus;
-  pickup_location: {
-    lat: number;
-    lng: number;
-    address: string;
-  };
-  dropoff_location: {
-    lat: number;
-    lng: number;
-    address: string;
-  };
-  fare: number;
-  ride_type: "one_way" | "round_trip";
+  pickup_lat: number;
+  pickup_lng: number;
+  pickup_addr: string;
+  dropoff_lat: number;
+  dropoff_lng: number;
+  dropoff_addr: string;
+  fare_amount: number;
+  is_round_trip: boolean;
 }
 
 export interface Batch {
