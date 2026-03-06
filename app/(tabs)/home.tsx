@@ -216,9 +216,16 @@ export default function DriverHomeScreen() {
         </View>
       )}
 
-      {/* Online/Offline toggle */}
+      {/* Online/Offline toggle + ride request hint */}
       {!pendingBatch && !currentBatch && (
         <View style={styles.toggleContainer}>
+          {isOnline && (
+            <View style={styles.hintBubble}>
+              <Text style={styles.hintText}>
+                Ride requests will appear here automatically
+              </Text>
+            </View>
+          )}
           <OnlineToggle
             isOnline={isOnline}
             isLoading={isLoading}
@@ -302,5 +309,23 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 100,
     alignSelf: "center",
+    alignItems: "center",
+  },
+  hintBubble: {
+    backgroundColor: Colors.white,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  hintText: {
+    fontSize: 13,
+    color: Colors.gray,
+    fontWeight: "500",
   },
 });

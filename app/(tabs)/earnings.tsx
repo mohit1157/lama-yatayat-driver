@@ -9,6 +9,7 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/config";
@@ -29,8 +30,10 @@ export default function EarningsScreen() {
       ]);
       setSummary(summaryData);
       setRecentTrips(tripsData ?? []);
-    } catch {
-      // Use defaults
+    } catch (err) {
+      // API may not have earnings endpoints yet – use defaults silently
+      setSummary(null);
+      setRecentTrips([]);
     }
   };
 
@@ -108,18 +111,20 @@ export default function EarningsScreen() {
             <Text style={styles.emptyText}>No trips yet</Text>
           </View>
         ) : (
-          recentTrips.map((entry) => (
-            <View key={entry.id} style={styles.tripRow}>
+          recentTrips.map((entry, index) => (
+            <View key={entry.id ?? index} style={styles.tripRow}>
               <View>
                 <Text style={styles.tripId}>
-                  Trip #{entry.ride_id.slice(0, 8)}
+                  Trip #{(entry.ride_id ?? entry.id ?? "—").slice(0, 8)}
                 </Text>
                 <Text style={styles.tripDate}>
-                  {new Date(entry.created_at).toLocaleDateString()}
+                  {entry.created_at
+                    ? new Date(entry.created_at).toLocaleDateString()
+                    : "—"}
                 </Text>
               </View>
               <Text style={styles.tripAmount}>
-                +${entry.amount.toFixed(2)}
+                +${(entry.amount ?? 0).toFixed(2)}
               </Text>
             </View>
           ))
